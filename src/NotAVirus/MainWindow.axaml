@@ -1,0 +1,171 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="900"
+        d:DesignHeight="620"
+        x:Class="NotAVirus.MainWindow"
+        Title="not-a-virus.exe"
+        Width="900"
+        Height="680"
+        MinWidth="640"
+        MinHeight="560"
+        Background="#121316">
+    <Window.Styles>
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="#E7F7EF" />
+            <Setter Property="FontFamily" Value="Inter" />
+        </Style>
+        <Style Selector="Button#ClickMeButton">
+            <Setter Property="Background" Value="#4FE38B" />
+            <Setter Property="Foreground" Value="#111316" />
+            <Setter Property="BorderBrush" Value="#B6FFD1" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="FontSize" Value="28" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Padding" Value="28,18" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button#ClickMeButton:pointerover">
+            <Setter Property="Background" Value="#72F5A6" />
+        </Style>
+        <Style Selector="ProgressBar">
+            <Setter Property="Foreground" Value="#38D6FF" />
+            <Setter Property="Background" Value="#252830" />
+            <Setter Property="Height" Value="18" />
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="28" RowSpacing="22">
+        <Border Grid.Row="0"
+                BorderBrush="#4FE38B"
+                BorderThickness="0,0,0,2"
+                Padding="0,0,0,18">
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="18">
+                <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Spacing="8">
+                    <TextBlock Text="not-a-virus.exe"
+                               FontSize="46"
+                               FontWeight="Black"
+                               Foreground="#4FE38B" />
+                    <TextBlock Text="Completely fake threat intelligence for very real button clicks."
+                               FontSize="17"
+                               Foreground="#A9B7B0" />
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Grid.Row="0"
+                        Background="#272B33"
+                        BorderBrush="#FFCF5A"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="14,8"
+                        HorizontalAlignment="Right">
+                    <TextBlock x:Name="StatusPill"
+                               Text="idle but suspicious"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#FFCF5A" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="1.1*,1.4*" ColumnSpacing="24">
+            <StackPanel Grid.Column="0" Spacing="18" VerticalAlignment="Center">
+                <TextBlock Text="Clicks Captured"
+                           FontSize="18"
+                           Foreground="#A9B7B0" />
+                <TextBlock x:Name="CounterText"
+                           Text="0"
+                           FontSize="112"
+                           FontWeight="Black"
+                           Foreground="#F2F6F3" />
+                <Button x:Name="ClickMeButton"
+                        Content="Click Me"
+                        Click="ClickMeButton_OnClick"
+                        MinHeight="96" />
+            </StackPanel>
+
+            <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="16">
+                <StackPanel Grid.Row="0" Spacing="8">
+                    <TextBlock Text="Exfiltrating vibes"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="#38D6FF" />
+                    <ProgressBar x:Name="VibeProgress"
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="0" />
+                </StackPanel>
+
+                <Border Grid.Row="1"
+                        BorderBrush="#38D6FF"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16"
+                        Background="#1B2025">
+                    <TextBlock x:Name="BlurbText"
+                               Text="Nothing suspicious happening here."
+                               FontSize="24"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               Foreground="#F2F6F3" />
+                </Border>
+
+                <Border Grid.Row="2"
+                        BorderBrush="#4FE38B"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="14"
+                        Background="#17211B">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Flags Found"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#4FE38B" />
+                        <TextBlock x:Name="FlagsFoundText"
+                                   Text="None yet. Milestone flags unlock at 100, 250, 500, and 1000 clicks."
+                                   FontSize="14"
+                                   TextWrapping="Wrap"
+                                   Foreground="#D8F7E3" />
+                    </StackPanel>
+                </Border>
+
+                <Grid Grid.Row="3"
+                      RowDefinitions="Auto,Auto,Auto,Auto"
+                      ColumnDefinitions="Auto,*"
+                      ColumnSpacing="14"
+                      RowSpacing="12"
+                      VerticalAlignment="Center">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="MODE" Foreground="#FF6FB1" FontWeight="Bold" />
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Button-only simulation" Foreground="#E7F7EF" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="FILES" Foreground="#FF6FB1" FontWeight="Bold" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Untouched" Foreground="#E7F7EF" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="NETWORK" Foreground="#FF6FB1" FontWeight="Bold" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Not contacted" Foreground="#E7F7EF" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="PAYLOAD" Foreground="#FF6FB1" FontWeight="Bold" />
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="A counter and some jokes" Foreground="#E7F7EF" />
+                </Grid>
+
+                <TextBlock Grid.Row="4"
+                           Text="This app does not access your files, network, credentials, or system settings. It only counts clicks."
+                           TextWrapping="Wrap"
+                           FontSize="13"
+                           Foreground="#A9B7B0" />
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="2"
+                Background="#1B2025"
+                BorderBrush="#343B45"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="14">
+            <TextBlock x:Name="FooterText"
+                       Text="Ready. Awaiting user-generated productivity incident."
+                       FontSize="14"
+                       Foreground="#A9B7B0" />
+        </Border>
+    </Grid>
+</Window>
