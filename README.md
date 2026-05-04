@@ -57,6 +57,14 @@ Publish outputs are written by GitHub Actions to:
 - `artifacts/osx-x64/`
 - `artifacts/osx-arm64/`
 
+## Icons
+
+The app icon assets live in `src/NotAVirus/Assets`.
+
+- Windows uses `not-a-virus.ico` for the application and window icon.
+- Linux uses the Avalonia window icon at runtime unless the app is packaged with a `.desktop` file that declares a desktop environment icon.
+- macOS uses the Avalonia window icon in this direct publish layout, but a proper `.app` bundle with an `.icns` file is needed for the Dock and Finder icon to look fully native.
+
 ## Logs
 
 On start, the app uses `AppContext.BaseDirectory` to create a `logs` folder next to the launched executable. Each run creates a timestamped log file:
