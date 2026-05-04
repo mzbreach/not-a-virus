@@ -79,9 +79,24 @@ The logger is intentionally small and synchronous. It writes only to `./logs`.
 
 ## GitHub Actions
 
-The workflow in `.github/workflows/build.yml` runs on push and pull request. It publishes separate self-contained single-file artifacts for:
+The workflow in `.github/workflows/build.yml` runs on push and pull request. It publishes separate self-contained single-file workflow artifacts for:
 
 - `win-x64`
 - `linux-x64`
 - `osx-x64`
 - `osx-arm64`
+
+## Releases
+
+Successful tagged builds automatically create a GitHub Release when the pushed tag matches `v*.*.*`.
+
+Release process:
+
+1. Update `<Version>` in `src/NotAVirus/NotAVirus.csproj`.
+2. Commit the change.
+3. Create and push a matching tag, for example `v1.2.3`.
+4. GitHub Actions builds all four platforms and publishes the release automatically.
+
+The release tag must exactly match the project version as `v<Version>`. For example, `<Version>1.2.3</Version>` must be released with tag `v1.2.3`; a mismatched tag build fails before publishing.
+
+GitHub automatically generates release notes from merged PRs and commit history.

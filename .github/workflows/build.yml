@@ -2,7 +2,14 @@ name: Build
 
 on:
   push:
+    branches:
+      - "**"
+    tags:
+      - "v*.*.*"
   pull_request:
+
+permissions:
+  contents: write
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -10,8 +17,46 @@ env:
   DOTNET_NOLOGO: "1"
 
 jobs:
+  metadata:
+    name: Read version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release_tag: ${{ steps.version.outputs.release_tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read project version
+        id: version
+        shell: pwsh
+        run: |
+          $versionNode = Select-Xml -Path "src/NotAVirus/NotAVirus.csproj" -XPath "/Project/PropertyGroup/Version" | Select-Object -First 1
+          if ($null -eq $versionNode -or [string]::IsNullOrWhiteSpace($versionNode.Node.InnerText)) {
+            Write-Error "Missing <Version> in src/NotAVirus/NotAVirus.csproj."
+            exit 1
+          }
+
+          $version = $versionNode.Node.InnerText.Trim()
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "release_tag=v$version" >> $env:GITHUB_OUTPUT
+
+      - name: Validate release tag
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        run: |
+          $expectedTag = "v${{ steps.version.outputs.version }}"
+          $actualTag = "${{ github.ref_name }}"
+
+          if ($actualTag -ne $expectedTag) {
+            Write-Error "Release tag '$actualTag' does not match src/NotAVirus/NotAVirus.csproj <Version> '${{ steps.version.outputs.version }}'. Push tag '$expectedTag' or update <Version>."
+            exit 1
+          }
+
   publish:
     name: Publish ${{ matrix.rid }}
+    needs: metadata
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -44,9 +89,50 @@ jobs:
       - name: Publish ${{ matrix.rid }}
         run: dotnet publish src/NotAVirus -c Release -r ${{ matrix.rid }} --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o artifacts/${{ matrix.rid }}
 
-      - name: Upload ${{ matrix.rid }} artifact
+      - name: Package ${{ matrix.rid }} archive
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          archive="not-a-virus-${{ matrix.rid }}-v${{ needs.metadata.outputs.version }}.zip"
+          (cd artifacts/${{ matrix.rid }} && zip -r "../../release-assets/$archive" .)
+
+      - name: Package ${{ matrix.rid }} archive
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release-assets | Out-Null
+          $archive = "release-assets/not-a-virus-${{ matrix.rid }}-v${{ needs.metadata.outputs.version }}.zip"
+          if (Test-Path $archive) {
+            Remove-Item $archive
+          }
+          Compress-Archive -Path "artifacts/${{ matrix.rid }}/*" -DestinationPath $archive -Force
+
+      - name: Upload ${{ matrix.rid }} archive
         uses: actions/upload-artifact@v4
         with:
-          name: not-a-virus-${{ matrix.rid }}
-          path: artifacts/${{ matrix.rid }}/
+          name: not-a-virus-${{ matrix.rid }}-archive
+          path: release-assets/not-a-virus-${{ matrix.rid }}-v${{ needs.metadata.outputs.version }}.zip
           if-no-files-found: error
+
+  release:
+    name: Create GitHub Release
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs:
+      - metadata
+      - publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download release archives
+        uses: actions/download-artifact@v4
+        with:
+          pattern: not-a-virus-*-archive
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ needs.metadata.outputs.release_tag }}" release-assets/*.zip --title "not-a-virus v${{ needs.metadata.outputs.version }}" --generate-notes
